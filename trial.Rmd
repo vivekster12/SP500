@@ -36,6 +36,24 @@ Note that the `echo = FALSE` parameter was added to the code chunk to prevent pr
 # need to do min max scaling, but cant use scikit learn, so built own function source: https://gist.github.com/swayson/b5a6d3cd796ab1d08df1
 
 ```{r}
-sp500_training_scaled = minmax_scaler(sp500_training_complete$Close,0,1)
+sp500_training_scaled = array(minmax_scaler(sp500_training_complete$Close,0,1))
+```
+
+```{r}
+print(class(sp500_training_scaled))
+```
+
+
+
+```{r}
+N <- 50L
+total <- NROW(sp500_training_complete)
+```
+
+```{r}
+for (index in (N:total)){
+  array(sp500_training_scaled[(1+index-N):index])
+  break
+}
 ```
 
