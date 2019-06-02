@@ -31,3 +31,11 @@ ggplot(sp500_training_complete, aes(x=Date, y=Close, group=1)) + geom_line()
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+# need to do min max scaling, but cant use scikit learn, so built own function source: https://gist.github.com/swayson/b5a6d3cd796ab1d08df1
+
+```{r}
+sp500_training_scaled = minmax_scaler(sp500_training_complete$Close,0,1)
+```
+
