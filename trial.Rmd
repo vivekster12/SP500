@@ -39,10 +39,6 @@ Note that the `echo = FALSE` parameter was added to the code chunk to prevent pr
 sp500_training_scaled = array(minmax_scaler(sp500_training_complete$Close,0,1))
 ```
 
-```{r}
-print(class(sp500_training_scaled))
-```
-
 
 
 ```{r}
@@ -51,9 +47,14 @@ total <- NROW(sp500_training_complete)
 ```
 
 ```{r}
-for (index in (N:total)){
-  array(sp500_training_scaled[(1+index-N):index])
-  break
+feats <- vector("list",1)
+labels <- vector("list",1)
+for (index in c(N:(total-1))){
+  feats[[(1+index-N)]] <- array(sp500_training_scaled[(1+index-N):index])
+  labels[[(1+index-N)]] <- sp500_training_scaled[[(index + 1)]]
 }
 ```
+
+
+
 
