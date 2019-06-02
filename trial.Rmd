@@ -55,6 +55,25 @@ for (index in c(N:(total-1))){
 }
 ```
 
+```{r}
+library(keras)
+```
+
+
+
+
+```{r}
+install_keras()
+```
+
+
+
+
+
+
+
+
+
 
 
 
