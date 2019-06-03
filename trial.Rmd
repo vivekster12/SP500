@@ -36,6 +36,21 @@ Note that the `echo = FALSE` parameter was added to the code chunk to prevent pr
 # need to do min max scaling, but cant use scikit learn, so built own function source: https://gist.github.com/swayson/b5a6d3cd796ab1d08df1
 
 ```{r}
+minmax_scaler <- function(x, a, b) {
+    "
+    x: data. numeric vector of values to be scaled
+    a: desired minimum after scaling takes place
+    b: desired maximum after scaling takes place
+    
+    e.g. f(c(1,2,3,4), 1, 17)
+    [1]  1.000000  6.333333 11.666667 17.000000
+    "
+    (((b - a)*(x - min(x))) / (max(x) - min(x))) + a
+}
+```
+
+
+```{r}
 sp500_training_scaled = array(minmax_scaler(sp500_training_complete$Close,0,1))
 ```
 
@@ -57,14 +72,13 @@ for (index in c(N:(total-1))){
 
 ```{r}
 library(keras)
-```
-
-
-
-
-```{r}
 install_keras()
 ```
+
+
+
+
+
 
 
 
