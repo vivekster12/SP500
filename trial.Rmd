@@ -55,13 +55,6 @@ inverse_minmax_scaler <- function(x){
 }
 ```
 
-```{r}
-temp <- array(minmax_scaler(sp500_training_complete$Close,0,1))
-array(inverse_minmax_scaler(temp))
-sp500_training_complete$Close
-```
-
-
 
 ```{r}
 sp500_training_scaled = array(minmax_scaler(sp500_training_complete$Close,0,1))
@@ -73,16 +66,10 @@ N <- 50L
 total <- NROW(sp500_training_complete)
 ```
 
-```{r}
-rm(X)
-```
 
 
 ```{r}
 modified_sp500_training_scaled = c(sp500_training_scaled, replicate(N, tail(sp500_training_scaled, 1)))
-```
-
-```{r}
 feats = NULL
 labels = NULL
 for(i in 1:(total-N))
@@ -91,18 +78,9 @@ for(i in 1:(total-N))
   feats = rbind(feats,modified_sp500_training_scaled[i:s])
   labels = rbind(labels,modified_sp500_training_scaled[s+1])
 }
-
-```
-
-```{r}
 feats = array(feats, dim=c((total-N), N,1))
 ```
 
-```{r}
-dim(feats)
-dim(labels)
-feats
-```
 
 
 ```{r}
@@ -182,35 +160,35 @@ plot(epochs,loss, title('Training loss'))
 ```
 
 
-```{r}
-(dim(sp500_total)[1] - total-N)
-```
-
 
 ```{r}
 sp500_total = rbind(sp500_training_complete,sp500_training_complete)
 dim(sp500_total)
 dim(sp500_total)[1]-total-N+1
 dim(sp500_total)[1]
+dim(sp500_total)[1] - (dim(sp500_total)[1]-total-N+1)
 sp500_test = sp500_total$Close[(dim(sp500_total)[1]-total-N+1):dim(sp500_total)[1]]
 length(sp500_test)
 sp500_test
 sp500_testing_scaled = array(minmax_scaler(sp500_test,0,1))
 dim(sp500_testing_scaled)
 sp500_testing_scaled
-modified_sp500_testing_scaled = c(sp500_testing_scaled, replicate(N, tail(sp500_testing_scaled, 1)))
-dim(sp500_testing_scaled)
+
+length(modified_sp500_testing_scaled)
+372+50
 ```
 
 
 ```{r}
+modified_sp500_testing_scaled = c(sp500_testing_scaled, replicate(N, tail(sp500_testing_scaled, 1)))
 test_feats = NULL
 for(i in 1:dim(sp500_testing_scaled))
 {
   s = i-1+N
   test_feats = rbind(test_feats,modified_sp500_testing_scaled[i:s])
 }
-
+test_feats = array(test_feats, dim=c((total), N,1))
+dim(test_feats)
 ```
 
 
@@ -221,14 +199,6 @@ predictions = model %>% predict(test_feats)
 
 
 ```{r}
-test_feats
-```
-
-
-
-```{r}
-predictions
-
 plot(predictions, type="l", col="red", lwd=2)
 ```
 
@@ -236,16 +206,12 @@ plot(predictions, type="l", col="red", lwd=2)
 
 ```{r}
 predictions = inverse_minmax_scaler(predictions)
-
-dim(predictions)
-length(sp500_training_complete$Close)
 ```
 
 
 
 ```{r}
-plot(predictions, type="p", col="red", lwd=2)
-#lines(predictions, col="blue",lwd=2)
+plot(predictions, type="l", col="red", lwd=2)
 ```
 
 
