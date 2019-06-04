@@ -49,6 +49,19 @@ minmax_scaler <- function(x, a, b) {
 }
 ```
 
+```{r}
+inverse_minmax_scaler <- function(x){
+  (x - min(x))/(min(x) - max(x))
+}
+```
+
+```{r}
+temp <- array(minmax_scaler(sp500_training_complete$Close,0,1))
+array(inverse_minmax_scaler(temp))
+sp500_training_complete$Close
+```
+
+
 
 ```{r}
 sp500_training_scaled = array(minmax_scaler(sp500_training_complete$Close,0,1))
@@ -164,9 +177,34 @@ plot(epochs,loss, title('Training loss'))
 ```
 
 
+```{r}
+sp500_total$Close[(dim(sp500_total)[1] - total-N):dim(sp500_total)[1]]
+```
+
+
+```{r}
+sp500_total = rbind(sp500_training_complete,sp500_training_complete)
+sp500_testing_scaled = array(minmax_scaler(sp500_total$Close[(dim(sp500_total)[1] - total-N):dim(sp500_total)[1]],0,1))
+modified_sp500_testing_scaled = c(sp500_testing_scaled, replicate(N, tail(sp500_testing_scaled, 1)))
+```
+
+
+```{r}
+test_feats = NULL
+for(i in 1:total)
+{
+  s = i-1+N
+  test_feats = rbind(feats,modified_sp500_testing_scaled[i:s])
+}
+
+test_feats = array(test_feats, dim=c(total+N, N,1))
+```
 
 
 
+```{r}
+model %>% predict(test_feats)
+```
 
 
 
