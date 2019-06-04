@@ -85,7 +85,7 @@ modified_sp500_training_scaled = c(sp500_training_scaled, replicate(N, tail(sp50
 ```{r}
 feats = NULL
 labels = NULL
-for(i in 1:total)
+for(i in 1:(total-N))
 {
   s = i-1+N
   feats = rbind(feats,modified_sp500_training_scaled[i:s])
@@ -95,9 +95,14 @@ for(i in 1:total)
 ```
 
 ```{r}
-feats = array(feats, dim=c(total, N,1))
+feats = array(feats, dim=c((total-N), N,1))
 ```
 
+```{r}
+dim(feats)
+dim(labels)
+feats
+```
 
 
 ```{r}
@@ -178,35 +183,75 @@ plot(epochs,loss, title('Training loss'))
 
 
 ```{r}
-sp500_total$Close[(dim(sp500_total)[1] - total-N):dim(sp500_total)[1]]
+(dim(sp500_total)[1] - total-N)
 ```
 
 
 ```{r}
 sp500_total = rbind(sp500_training_complete,sp500_training_complete)
-sp500_testing_scaled = array(minmax_scaler(sp500_total$Close[(dim(sp500_total)[1] - total-N):dim(sp500_total)[1]],0,1))
+dim(sp500_total)
+dim(sp500_total)[1]-total-N+1
+dim(sp500_total)[1]
+sp500_test = sp500_total$Close[(dim(sp500_total)[1]-total-N+1):dim(sp500_total)[1]]
+length(sp500_test)
+sp500_test
+sp500_testing_scaled = array(minmax_scaler(sp500_test,0,1))
+dim(sp500_testing_scaled)
+sp500_testing_scaled
 modified_sp500_testing_scaled = c(sp500_testing_scaled, replicate(N, tail(sp500_testing_scaled, 1)))
+dim(sp500_testing_scaled)
 ```
 
 
 ```{r}
 test_feats = NULL
-for(i in 1:total)
+for(i in 1:dim(sp500_testing_scaled))
 {
   s = i-1+N
-  test_feats = rbind(feats,modified_sp500_testing_scaled[i:s])
+  test_feats = rbind(test_feats,modified_sp500_testing_scaled[i:s])
 }
 
-test_feats = array(test_feats, dim=c(total+N, N,1))
 ```
 
 
 
 ```{r}
-model %>% predict(test_feats)
+predictions = model %>% predict(test_feats)
 ```
 
 
+```{r}
+test_feats
+```
+
+
+
+```{r}
+predictions
+
+plot(predictions, type="l", col="red", lwd=2)
+```
+
+
+
+```{r}
+predictions = inverse_minmax_scaler(predictions)
+
+dim(predictions)
+length(sp500_training_complete$Close)
+```
+
+
+
+```{r}
+plot(predictions, type="p", col="red", lwd=2)
+#lines(predictions, col="blue",lwd=2)
+```
+
+
+```{r}
+dim(predictions)
+```
 
 
 
