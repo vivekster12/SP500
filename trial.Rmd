@@ -72,8 +72,76 @@ for (index in c(N:(total-1))){
 
 ```{r}
 library(keras)
+use_condaenv("r-tensorflow")
 install_keras()
 ```
+
+
+```{r}
+## TRIAL (see what layer dropout is vs dropout args is)
+#model <- keras_model_sequential()
+#model %>%
+  #layer_lstm(units = 50, return_sequences = TRUE, input_shape=c(N, 1),unroll=FALSE, dropout = 0.2) %>%
+  #layer_lstm(units = 50, return_sequences = TRUE, dropout = 0.2) %>%
+  #layer_lstm(units = 50, return_sequences = TRUE, dropout = 0.2) %>%
+  #layer_lstm(units = 50, dropout = 0.2) %>%
+  #layer_dense(units = 1)
+
+```
+
+
+```{r}
+model <- keras_model_sequential()
+```
+
+```{r}
+model %>%
+  layer_lstm(units = 50, return_sequences = TRUE, input_shape=c(N, 1),unroll=FALSE) %>%
+  layer_dropout(0.2) %>%
+  layer_lstm(units = 50, return_sequences = TRUE) %>%
+  layer_dropout(0.2) %>%
+  layer_lstm(units = 50, return_sequences = TRUE) %>%
+  layer_dropout(0.2) %>%
+  layer_lstm(units = 50) %>%
+  layer_dropout(0.2) %>%
+  layer_dense(units = 1)
+  
+```
+
+
+```{r}
+summary(model)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
