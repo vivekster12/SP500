@@ -55,19 +55,45 @@ sp500_training_scaled = array(minmax_scaler(sp500_training_complete$Close,0,1))
 ```
 
 
-
 ```{r}
 N <- 50L
 total <- NROW(sp500_training_complete)
 ```
 
 ```{r}
-feats <- vector("list",1)
-labels <- vector("list",1)
-for (index in c(N:(total-1))){
-  feats[[(1+index-N)]] <- array(sp500_training_scaled[(1+index-N):index])
-  labels[[(1+index-N)]] <- sp500_training_scaled[[(index + 1)]]
+rm(X)
+```
+
+
+```{r}
+modified_sp500_training_scaled = c(sp500_training_scaled, replicate(N, tail(sp500_training_scaled, 1)))
+```
+
+```{r}
+feats = NULL
+labels = NULL
+for(i in 1:total)
+{
+  s = i-1+N
+  feats = rbind(feats,modified_sp500_training_scaled[i:s])
+  labels = rbind(labels,modified_sp500_training_scaled[s+1])
 }
+
+```
+
+```{r}
+feats = array(feats, dim=c(total, N,1))
+```
+
+
+
+```{r}
+#feats <- vector("list",1)
+#labels <- vector("list",1)
+#for (index in c(N:(total-1))){
+#  feats[[(1+index-N)]] <- array(sp500_training_scaled[(1+index-N):index])
+#  labels[[(1+index-N)]] <- sp500_training_scaled[[(index + 1)]]
+#}
 ```
 
 ```{r}
@@ -114,10 +140,28 @@ summary(model)
 ```
 
 
+```{r}
+model %>%
+  compile(optimizer = 'adam', loss = 'mean_squared_error')
+```
+
+
+```{r}
+history = model %>%
+  fit(feats, labels, epochs = 100, batch_size = 32)
+```
 
 
 
+```{r}
+loss = history$metrics$loss
+epochs = 1:length(loss)+1
+```
 
+
+```{r}
+plot(epochs,loss, title('Training loss'))
+```
 
 
 
