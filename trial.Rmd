@@ -51,7 +51,9 @@ minmax_scaler <- function(x, a, b) {
 
 ```{r}
 inverse_minmax_scaler <- function(x){
-  (x - min(x))/(min(x) - max(x))
+  maxval = max(sp500_training_complete$Close)
+  minval = min(sp500_training_complete$Close)
+  x*(maxval-minval) + minval
 }
 ```
 
@@ -211,18 +213,19 @@ lines(sp500_training_complete$Close,type="l",col="blue", lwd=2)
 
 
 ```{r}
-predictions = inverse_minmax_scaler(predictions)
+predictions_new = inverse_minmax_scaler(predictions)
 ```
 
 
 
 ```{r}
-plot(predictions, type="l", col="red", lwd=2)
+plot(predictions_new, type="l", col="red", lwd=2, ylim = c(1400,2900))
+lines(sp500_training_complete$Close,type="l",col="blue", lwd=2)
 ```
 
 
 ```{r}
-dim(predictions)
+?scale
 ```
 
 
