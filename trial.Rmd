@@ -9,32 +9,16 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
 # load csv
 ```{r}
 sp500_training_complete<-read.csv("/home/vivek/Documents/sandbox/SandPTrial/S-PTrial/GSPC.csv")
 ```
 
-
 # init plot
 ```{r}
-library(ggplot2)
+plot(sp500_training_complete$Close,type="l", col="blue", lwd=2, xlab = "Date", ylab = "Close", main = "SP500 Index Price")
 ```
-
-```{r plot, echo=FALSE}
-ggplot(sp500_training_complete, aes(x=Date, y=Close, group=1)) + geom_line()
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
-
-
-# need to do min max scaling, but cant use scikit learn, so built own function source: https://gist.github.com/swayson/b5a6d3cd796ab1d08df1
-
+function for minmax scaling source: https://gist.github.com/swayson/b5a6d3cd796ab1d08df1
 ```{r}
 minmax_scaler <- function(x, a, b) {
     "
@@ -49,29 +33,29 @@ minmax_scaler <- function(x, a, b) {
 }
 ```
 
+function to invert the scaling
 ```{r}
 inverse_minmax_scaler <- function(x){
-  maxval = max(sp500_training_complete$Close)
-  minval = min(sp500_training_complete$Close)
+  maxval = max(sp500_training_complete$Close) # this is important to do!
+  minval = min(sp500_training_complete$Close) # same for this, min max should be of the OG dataset.
   x*(maxval-minval) + minval
 }
 ```
 
-
+Perform minmax scaling on "Close" values
 ```{r}
 sp500_training_scaled = array(minmax_scaler(sp500_training_complete$Close,0,1))
 ```
 
-
+Some global variables
 ```{r}
-N <- 50L
-total <- NROW(sp500_training_complete)
+N <- 50L #window size for LSTM
+total <- NROW(sp500_training_complete) #size of training set
 ```
 
-
-
+Create feature set and labels 
 ```{r}
-modified_sp500_training_scaled = c(sp500_training_scaled, replicate(N, tail(sp500_training_scaled, 1)))
+modified_sp500_training_scaled = c(sp500_training_scaled, replicate(N, tail(sp500_training_scaled, 1))) #duplicates last row
 feats = NULL
 labels = NULL
 for(i in 1:(total-N))
@@ -83,42 +67,15 @@ for(i in 1:(total-N))
 feats = array(feats, dim=c((total-N), N,1))
 ```
 
-
-
-```{r}
-#feats <- vector("list",1)
-#labels <- vector("list",1)
-#for (index in c(N:(total-1))){
-#  feats[[(1+index-N)]] <- array(sp500_training_scaled[(1+index-N):index])
-#  labels[[(1+index-N)]] <- sp500_training_scaled[[(index + 1)]]
-#}
-```
-
+Import Keras
 ```{r}
 library(keras)
-use_condaenv("r-tensorflow")
-install_keras()
+use_condaenv("r-tensorflow") # turns out I have to do this.
+#install_keras()
 ```
-
-
-```{r}
-## TRIAL (see what layer dropout is vs dropout args is)
-#model <- keras_model_sequential()
-#model %>%
-  #layer_lstm(units = 50, return_sequences = TRUE, input_shape=c(N, 1),unroll=FALSE, dropout = 0.2) %>%
-  #layer_lstm(units = 50, return_sequences = TRUE, dropout = 0.2) %>%
-  #layer_lstm(units = 50, return_sequences = TRUE, dropout = 0.2) %>%
-  #layer_lstm(units = 50, dropout = 0.2) %>%
-  #layer_dense(units = 1)
-
-```
-
 
 ```{r}
 model <- keras_model_sequential()
-```
-
-```{r}
 model %>%
   layer_lstm(units = 50, return_sequences = TRUE, input_shape=c(N, 1),unroll=FALSE) %>%
   layer_dropout(0.2) %>%
@@ -132,7 +89,7 @@ model %>%
   
 ```
 
-
+Model overview
 ```{r}
 summary(model)
 ```
@@ -143,19 +100,18 @@ model %>%
   compile(optimizer = 'adam', loss = 'mean_squared_error')
 ```
 
-
+Train the model
 ```{r}
 history = model %>%
   fit(feats, labels, epochs = 100, batch_size = 32)
 ```
 
 
-
+For plotting loss
 ```{r}
 loss = history$metrics$loss
 epochs = 1:length(loss)+1
 ```
-
 
 ```{r}
 plot(epochs,loss, title('Training loss'))
@@ -163,24 +119,14 @@ plot(epochs,loss, title('Training loss'))
 
 
 
+Prepre test set
 ```{r}
-sp500_total = rbind(sp500_training_complete,sp500_training_complete)
-dim(sp500_total)
-dim(sp500_total)[1]-total-N+1
-dim(sp500_total)[1]
-dim(sp500_total)[1] - (dim(sp500_total)[1]-total-N+1)
+sp500_total = rbind(sp500_training_complete,sp500_training_complete) #concatenate(duplicate) datasets, one on top of other
 sp500_test = sp500_total$Close[(dim(sp500_total)[1]-total-N+1):dim(sp500_total)[1]]
-length(sp500_test)
-sp500_test
+# perform minmax scaling
 sp500_testing_scaled = array(minmax_scaler(sp500_test,0,1))
-dim(sp500_testing_scaled)
-sp500_testing_scaled
-
-length(modified_sp500_testing_scaled)
-372+50
 ```
-
-
+As done for the training set, prepare test set of feats (no labels of course)
 ```{r}
 modified_sp500_testing_scaled = c(sp500_testing_scaled, replicate(N, tail(sp500_testing_scaled, 1)))
 test_feats = NULL
@@ -192,57 +138,33 @@ for(i in 1:total)
 test_feats = array(test_feats, dim=c((total), N,1))
 ```
 
-
-
-
+Predict
 ```{r}
 predictions = model %>% predict(test_feats)
 ```
-
+Invert the scaling 
 ```{r}
-predictions
+predictions_rescaled = inverse_minmax_scaler(predictions)
 ```
 
 
-
+Plot actual vs predicted
 ```{r}
-plot(predictions, type="l", col="red", lwd=2)
+plot(predictions_rescaled, type="l", col="red", lwd=2, ylim = c(1400,2900), xlab = "Date", ylab = "Close", main = "SP500 Index Prediction")
 lines(sp500_training_complete$Close,type="l",col="blue", lwd=2)
-```
-
-
-
-```{r}
-predictions_new = inverse_minmax_scaler(predictions)
-```
-
-
-
-```{r}
-plot(predictions_new, type="l", col="red", lwd=2, ylim = c(1400,2900))
-lines(sp500_training_complete$Close,type="l",col="blue", lwd=2)
-```
-
-
-```{r}
-length(sp500_training_complete$Close[51:322])
-length(predictions_new[51:322])
-```
-
-
-```{r}
-sqrt(mse(sp500_training_complete$Close[51:322],predictions_new[51:322]))
-```
-
-```{r}
-
-mse(c(3, -0.5, 2, 7),c(2.5, 0.0, 2, 8))
+legend(10,2900,legend = c("Predicted","Actual"), fill=c("red","blue"))
 ```
 
 ```{r}
 library(Metrics)
-mse
 ```
+
+Calculate Root Mean Squared
+```{r}
+sqrt(mse(sp500_training_complete$Close[51:322],predictions_new[51:322]))
+```
+
+
 
 
 
