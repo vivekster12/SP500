@@ -161,7 +161,7 @@ library(Metrics)
 
 Calculate Root Mean Squared
 ```{r}
-sqrt(mse(sp500_training_complete$Close[51:322],predictions_new[51:322]))
+sqrt(mse(sp500_training_complete$Close[51:322],predictions_rescaled[51:322]))
 ```
 
 
