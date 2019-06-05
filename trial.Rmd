@@ -182,14 +182,14 @@ length(modified_sp500_testing_scaled)
 ```{r}
 modified_sp500_testing_scaled = c(sp500_testing_scaled, replicate(N, tail(sp500_testing_scaled, 1)))
 test_feats = NULL
-for(i in 1:dim(sp500_testing_scaled))
+for(i in 1:total)
 {
   s = i-1+N
   test_feats = rbind(test_feats,modified_sp500_testing_scaled[i:s])
 }
 test_feats = array(test_feats, dim=c((total), N,1))
-dim(test_feats)
 ```
+
 
 
 
@@ -197,9 +197,15 @@ dim(test_feats)
 predictions = model %>% predict(test_feats)
 ```
 
+```{r}
+predictions
+```
+
+
 
 ```{r}
 plot(predictions, type="l", col="red", lwd=2)
+lines(sp500_training_complete$Close,type="l",col="blue", lwd=2)
 ```
 
 
