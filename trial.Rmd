@@ -225,7 +225,23 @@ lines(sp500_training_complete$Close,type="l",col="blue", lwd=2)
 
 
 ```{r}
-?scale
+length(sp500_training_complete$Close[51:322])
+length(predictions_new[51:322])
+```
+
+
+```{r}
+sqrt(mse(sp500_training_complete$Close[51:322],predictions_new[51:322]))
+```
+
+```{r}
+
+mse(c(3, -0.5, 2, 7),c(2.5, 0.0, 2, 8))
+```
+
+```{r}
+library(Metrics)
+mse
 ```
 
 
