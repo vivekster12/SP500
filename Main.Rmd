@@ -11,13 +11,15 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # load csv
 ```{r}
-sp500_training_complete<-read.csv("/home/vivek/Documents/sandbox/SandPTrial/S-PTrial/GSPC.csv")
+sp500_training_complete<-read.csv("/home/vivek/Documents/sandbox/SandPTrial/SP500/GSPC.csv")
 ```
 
 # init plot
 ```{r}
 plot(sp500_training_complete$Close,type="l", col="blue", lwd=2, xlab = "Date", ylab = "Close", main = "SP500 Index Price")
 ```
+
+
 function for minmax scaling source: https://gist.github.com/swayson/b5a6d3cd796ab1d08df1
 ```{r}
 minmax_scaler <- function(x, a, b) {
@@ -32,6 +34,7 @@ minmax_scaler <- function(x, a, b) {
     (((b - a)*(x - min(x))) / (max(x) - min(x))) + a
 }
 ```
+
 
 function to invert the scaling
 ```{r}
