@@ -36,7 +36,7 @@ minmax_scaler <- function(x, a, b) {
 ```
 
 
-function to invert the scaling
+Function to invert the scaling
 ```{r}
 inverse_minmax_scaler <- function(x){
   maxval = max(sp500_training_complete$Close) # this is important to do!
