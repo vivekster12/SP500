@@ -20,7 +20,8 @@ plot(sp500_training_complete$Close,type="l", col="blue", lwd=2, xlab = "Date", y
 ```
 
 
-function for minmax scaling source: https://gist.github.com/swayson/b5a6d3cd796ab1d08df1
+Vivek
+Function for minmax scaling source: https://gist.github.com/swayson/b5a6d3cd796ab1d08df1
 ```{r}
 minmax_scaler <- function(x, a, b) {
     "
