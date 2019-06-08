@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # load csv
 ```{r}
-sp500_training_complete<-read.csv("/home/vivek/Documents/sandbox/SandPTrial/SP500/GSPC.csv")
+sp500_training_complete<-read.csv("/home/vivek/Documents/sandbox/SandPTrial/S-PTrial/GSPC.csv")
 ```
 
 # init plot
