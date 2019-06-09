@@ -139,6 +139,8 @@ for(i in 1:total)
   test_feats = rbind(test_feats,modified_sp500_testing_scaled[i:s])
 }
 test_feats = array(test_feats, dim=c((total), N,1))
+tail(test_feats,50)
+dim(test_feats)
 ```
 
 Predict
