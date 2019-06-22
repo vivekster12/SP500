@@ -168,19 +168,27 @@ sqrt(mse(sp500_training_complete$Close[51:322],predictions_rescaled[51:322]))
 ```
 
 ```{r}
-typeof(predictions_rescaled)
-typeof(sp500_training_complete$Close)
-length(sp500_training_complete$Close)
-
 # get direction of actual
-(sp500_training_complete$Close[2:length(sp500_training_complete$Close)] - sp500_training_complete$Close[1:(length(sp500_training_complete$Close)-1)]) >= 0
+act_dir <- ifelse((sp500_training_complete$Close[2:length(sp500_training_complete$Close)] - sp500_training_complete$Close[1:(length(sp500_training_complete$Close)-1)])> 0, "UP", "DOWN")
+
 
 # get direction of predicted
-(predictions_rescaled[2:length(predictions_rescaled)] - predictions_rescaled[1:(length(predictions_rescaled)-1)]) >= 0
+pred_dir <- ifelse((predictions_rescaled[2:length(predictions_rescaled)] - predictions_rescaled[1:(length(predictions_rescaled)-1)])>0,"UP", "DOWN")
+
+act_dir <- append(act_dir, "NULL", after = length(act_dir))
+pred_dir <- append(pred_dir, "NULL", after = length(pred_dir))
 ```
 
 
 
+```{r}
+store <-list(sp500_training_complete$Close, act_dir, predictions_rescaled, pred_dir, act_dir == pred_dir)
+names(store) <- c("Actual", "Actual_Direction", "Predicted", "Predicted_direction", "Act_Dir Vs. Pred_Dir")
+```
+
+```{r}
+write.table(store,"test.csv",row.names=FALSE, sep=",")
+```
 
 
 
